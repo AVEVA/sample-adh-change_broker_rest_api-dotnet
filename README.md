@@ -2,9 +2,9 @@
 
 [![Build Status](https://dev.azure.com/osieng/engineering/_apis/build/status%2Fproduct-readiness%2FADH%2Fosisoft.sample-adh-streaming-updates_rest_api-dotnet?repoName=osisoft%2Fsample-adh-streaming-updates_rest_api-dotnet&branchName=main)](https://dev.azure.com/osieng/engineering/_build/latest?definitionId=5624&repoName=osisoft%2Fsample-adh-streaming-updates_rest_api-dotnet&branchName=main)
 
-## Version 1.0.4
+## Version 1.0.5
 
-Developed against DotNet 6.0
+Developed against DotNet 8.0
 
 ## Requirements
 The [.NET Core CLI](https://docs.microsoft.com/en-us/dotnet/core/tools/) is referenced in this sample, and should be installed to run the sample from the command line.

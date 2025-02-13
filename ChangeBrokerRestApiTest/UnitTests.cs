@@ -1,13 +1,14 @@
-﻿using Xunit;
+﻿using System.Threading.Tasks;
+using Xunit;
 
 namespace ChangeBrokerRestApiTest
 {
     public class UnitTests
     {
         [Fact]
-        public void ChangeBrokerRestApiUnitTest()
+        public async Task ChangeBrokerRestApiUnitTest()
         {
-            Assert.True(ChangeBrokerRestApi.Program.MainAsync(true).Result);
+            Assert.True(await ChangeBrokerRestApi.Program.MainAsync(true));
         }
     }
 }
