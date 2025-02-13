@@ -1,5 +1,9 @@
 # Version History
 
+## 1.0.5 / 2025-2-13
+
+- Upgrade to .NET 8
+
 ## 1.0.4 / 2024-2-2
 
 - Migrate Pipelines
