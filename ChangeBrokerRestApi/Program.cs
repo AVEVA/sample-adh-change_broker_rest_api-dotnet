@@ -174,7 +174,7 @@ namespace ChangeBrokerRestApi
                     CheckIfResponseWasSuccessful(response);
 
                     // Get Signup Id from HttpResponse
-                    Signup signup = JsonSerializer.Deserialize<Signup>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
+                    Signup signup = await JsonSerializer.DeserializeAsync<Signup>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
                     signupId = signup?.Id;
                     signupIds.Add(signupId);
                     Console.WriteLine($"Signup {signupId} has been created and is {signup?.SignupState}");
@@ -183,7 +183,7 @@ namespace ChangeBrokerRestApi
                     #endregion
 
                     // 1 second delay to allow signup to be ready to activate
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000);
 
                     // Step 5
                     // Make an API request to GetSignup to activate the signup
@@ -215,7 +215,7 @@ namespace ChangeBrokerRestApi
                     response = await httpClient.GetAsync(new Uri($"{resource}/api/{apiVersion}/Tenants/{tenantId}/Namespaces/{namespaceId}/signups/{signupId}/resources", UriKind.Absolute)).ConfigureAwait(false);
                     CheckIfResponseWasSuccessful(response);
 
-                    var signupResources = JsonSerializer.Deserialize<SignupResources>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
+                    var signupResources = await JsonSerializer.DeserializeAsync<SignupResources>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
 
                     if (signupResources != null)
                     {
@@ -247,7 +247,7 @@ namespace ChangeBrokerRestApi
 
                     // 20 second delay to catch up to updates. Continue polling if desired number of updates are not available or increase wait time.
                     Console.WriteLine("Waiting for updates to process\n");
-                    Thread.Sleep(20000);
+                    await Task.Delay(20000);
                     #endregion
 
                     // Step 8
@@ -258,11 +258,11 @@ namespace ChangeBrokerRestApi
                     response = await httpClient.GetAsync(new Uri($"{resource}/api/{apiVersion}/Tenants/{tenantId}/Namespaces/{namespaceId}/signups/{signupId}/updates?bookmark={bookmark}", UriKind.Absolute)).ConfigureAwait(false);
                     CheckIfResponseWasSuccessful(response);
 
-                    DataUpdate dataUpdate = JsonSerializer.Deserialize<DataUpdate>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _dataJsonOptions) !;
+                    DataUpdate dataUpdate = await JsonSerializer.DeserializeAsync<DataUpdate>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _dataJsonOptions) !;
 
                     // Note:The sequence in which update operations, (e.g. resourceId: Stream A, operation: Insert, events: [...]) are returned may differ from
                     // the order in which they are written. The order of data events within a stream, (e.g. Timestamp 12:00:00, Value: 23) is preserved.
-                    foreach (Update update in dataUpdate.Data)
+                    foreach (Update update in dataUpdate!.Data)
                     {
                         if (IsSdsSimpleType(update))
                         {
@@ -316,7 +316,7 @@ namespace ChangeBrokerRestApi
                     response = await httpClient.GetAsync(new Uri($"{resource}/api/{apiVersion}/Tenants/{tenantId}/Namespaces/{namespaceId}/signups/{signupId}/resources?skip={GetSignupResourcesSkip}&count={GetSignupResourcesCount}&resourceFilter={GetSignupsResourcesFilter}", UriKind.Absolute)).ConfigureAwait(false);
                     CheckIfResponseWasSuccessful(response);
                     
-                    signupResources = JsonSerializer.Deserialize<SignupResources>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
+                    signupResources = await JsonSerializer.DeserializeAsync<SignupResources>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
 
                     if (signupResources != null)
                     {
@@ -350,7 +350,7 @@ namespace ChangeBrokerRestApi
 
                     // 20 second delay to catch up to updates. Continue polling if desired number of updates are not available or increase wait time.
                     Console.WriteLine("Waiting for updates to process\n");
-                    Thread.Sleep(20000);
+                    await Task.Delay(20000);
                     #endregion
 
                     // Step 12
@@ -363,11 +363,11 @@ namespace ChangeBrokerRestApi
 
                     CheckIfResponseWasSuccessful(response);
 
-                    DataUpdate newDataUpdate = JsonSerializer.Deserialize<DataUpdate>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _dataJsonOptions) !;
+                    DataUpdate newDataUpdate = await JsonSerializer.DeserializeAsync<DataUpdate>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _dataJsonOptions) !;
 
                     // Note you can use the Common Langauage Runtime (CLR) time to deserialize the Remove and RemoveWindow operations, but only the Timestamp property
                     // will be populated. The RemoveWindow updates will not indicate if any events were deleted, only the start and end times of the RemoveWindow request. 
-                    foreach (Update update in newDataUpdate.Data)
+                    foreach (Update update in newDataUpdate!.Data)
                     {
                         if (IsSdsSimpleType(update))
                         {
@@ -405,14 +405,14 @@ namespace ChangeBrokerRestApi
                         response = await httpClient.PostAsync(new Uri($"{resource}/api/{apiVersion}/Tenants/{tenantId}/Namespaces/{namespaceId}/signups", UriKind.Absolute), additionalSignupToCreateString).ConfigureAwait(false);
                         CheckIfResponseWasSuccessful(response);
 
-                        Signup additionalSignup = JsonSerializer.Deserialize<Signup>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
+                        Signup additionalSignup = await JsonSerializer.DeserializeAsync<Signup>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
                         signupIds.Add(additionalSignup?.Id);
                     }
 
                     response = await httpClient.GetAsync(new Uri($"{resource}/api/{apiVersion}/Tenants/{tenantId}/Namespaces/{namespaceId}/signups?skip={GetAllSignupsSkip}&count={GetAllSignupsCount}", UriKind.Absolute)).ConfigureAwait(false);
                     CheckIfResponseWasSuccessful(response);
 
-                    SignupCollection signups = JsonSerializer.Deserialize<SignupCollection>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
+                    SignupCollection signups = await JsonSerializer.DeserializeAsync<SignupCollection>(await response.Content.ReadAsStreamAsync().ConfigureAwait(false), _apiJsonOptions);
 
                     foreach (var signupReturned in signups!.Signups)
                     {
@@ -498,7 +498,7 @@ namespace ChangeBrokerRestApi
             }
         }
 
-        private static IList<SdsSimpleType> GetSimpleData()
+        private static List<SdsSimpleType> GetSimpleData()
         {
             List<SdsSimpleType> data = new ()
             {
@@ -510,7 +510,7 @@ namespace ChangeBrokerRestApi
             return data;
         }
 
-        private static IList<WeatherDataType> GetWeatherData()
+        private static List<WeatherDataType> GetWeatherData()
         {
             List<WeatherDataType> data = new ()
             {
